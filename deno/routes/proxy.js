@@ -1,5 +1,5 @@
 import { Router, Status } from "https://deno.land/x/oak@v12.6.1/mod.ts";
-import { yandexUserAgent } from "../config.js";
+import { yandexUserAgent, isSupportHTTPS } from "../config.js";
 
 const proxyRouter = new Router()
   .get("/", async (ctx) => {
@@ -51,11 +51,12 @@ const proxyRouter = new Router()
             if (line.startsWith("#") || line.trim() == '') {
               return line;
             } else if(proxyAll == 'yes' && line.startsWith('http')){ // https://yourproxy.com/?url=https://somevideo.m3u8&all=yes
-              return `${ctx.request.url.origin}?url=${line}`;
+              return `${isSupportHTTPS ? ctx.request.url.origin.replace("http://", "https://") : ctx.request.url.origin}?url=${line}`;
             }
             return `?url=${targetUrlTrimmed}${line}${originUrl ?`&origin=${encodedOrigin}` : ""}${refererUrl ? `&referer=${encodedUrl}` : ""}${proxyAll ? `&all=${proxyAll}` : ""}`;
           })
           .join("\n");
+        console.log(modifiedM3u8)
       }
 
       ctx.response.status = response.status;
