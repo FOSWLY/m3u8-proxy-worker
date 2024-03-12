@@ -1,3 +1,20 @@
+const version = "1.0.0";
+
+function healthResponse() {
+  return new Response(
+    JSON.stringify({
+      status: "ok",
+      version
+    }),
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+}
+
 addEventListener("fetch", (event) => {
   event.respondWith(respondfetch(event.request));
 });
@@ -5,6 +22,10 @@ addEventListener("fetch", (event) => {
 async function respondfetch(request) {
   try {
     const url = new URL(request.url);
+    if (url.pathname === "/health" && request.method === "GET") {
+      return healthResponse();
+    }
+
     const refererUrl = decodeURIComponent(url.searchParams.get("referer") || "");
     const targetUrl = decodeURIComponent(url.searchParams.get("url") || "");
     const originUrl = decodeURIComponent(url.searchParams.get("origin") || "");
